@@ -13,7 +13,7 @@
             console.log(qidPop);
             //기존 문제 및 문제아이템 삭제
             $.ajax({
-                url: "/admin-service/queGen/queGenDelete",
+                url: "http://52.78.161.54:8000/admin-service/queGen/queGenDelete",
                 data: qidPop,
                 type: 'POST',
                 success: function onData(data){
@@ -28,7 +28,7 @@
 
         $("button[name='ModifyQue']").click(function (){
             var qidPop = "qid="+$("#qidPop").val();
-            location.href = "/admin-service/queGenModify?" + qidPop
+            location.href = "http://52.78.161.54:8000/admin-service/queGenModify?" + qidPop
         });
     });
 </script>
