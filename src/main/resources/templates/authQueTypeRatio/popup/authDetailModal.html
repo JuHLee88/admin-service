@@ -1,0 +1,133 @@
+<style>
+    ::placeholder {
+        color: gray;
+        font-size: 12px;
+    }
+</style>
+<script>
+    $(document).ready(function (){
+
+        $("button[name='complete']").click(function (){
+            var param_authcd = $("#authcd").val();
+            var param_qtypecd = $("#qtypecd").val();
+            var param_qtypenm = $("#qtypenm").val();
+            var param_ratio = $("#ratio").val();
+
+            console.log(param_qtypecd);
+
+            if(param_authcd == "") {alert("인증분야를 선택하세요."); return;}
+            if(param_qtypecd == "") {alert("인증세부분야코드를 입력하세요."); return;}
+            if(param_qtypenm == "") {alert("인증세부분야명를 입력하세요."); return;}
+            if(param_ratio == "") {alert("출제비중를 입력하세요."); return;}
+
+            var param = "authcd="+param_authcd+"&qtypecd="+param_qtypecd+"&qtypenm="+param_qtypenm+"&ratio="+param_ratio;
+
+            //인증분야저장
+            $.ajax({
+                url: "/admin-service/queTypeRatio/queTypeRatioAuthModal/insertAuthDetail",
+                data: param,
+                type: 'POST',
+                success: function onData(data){
+                    alert("저장 되었습니다.");
+                    $("#exitBtn").click();
+                    location.reload();
+                } ,
+                error:function onError(error){
+                    alert("실패하였습니다. [원인] : "+error);
+                    console.log(error);
+                }
+            });
+        });
+
+    });
+</script>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<div class="modal-header bg-primary">
+    <h5 class="modal-title h5" id="historyModalLabel" style="color: white">인증분야 추가하기</h5>
+    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">×</span>
+    </button>
+</div>
+<div class="">
+    <div  style="height:100px;">
+        <table style="width: 100%; border-spacing: 10px; border-collapse: separate;">
+            <thead>
+                <tr >
+                    <td class="text-secondary text-lg-center font-weight-bolder"
+                        style="text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                        인증분야
+                    </td>
+                    <td style="width: 3%;"></td>
+                    <td class="text-secondary text-lg-center font-weight-bolder"
+                        style="text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                        인증세부코드
+                    </td>
+                    <td style="width: 3%;"></td>
+                    <td class="text-secondary text-lg-center font-weight-bolder"
+                        style="text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                        인증세부명
+                    </td>
+                    <td style="width: 3%;"></td>
+                    <td class="text-secondary text-lg-center font-weight-bolder"
+                        style="text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                        출제비중
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="vertical-align: top; width: 10%; text-align: center;">
+                        <select id="authcd" style="width: 160px; height: 29px; border: #dbdad9 1px solid;">
+                            <th:block th:each="authList, al : ${authList}">
+                                <option th:value="${authList.authcd}" th:text="${authList.nm}">
+                                </option>
+                            </th:block>
+                        </select>
+                    </td>
+                    <td>
+                        <center>
+                            <div style="border-right: 1px solid #e3e6f0; width: 0.1px; height: 30px;"></div>
+                        </center>
+                    </td>
+                    <td style="vertical-align: top; width: 10%; text-align: center;">
+                        <input type="text" id="qtypecd" style="border: #dbdad9 1px solid;"/>
+                    </td>
+                    <td>
+                        <center>
+                            <div style="border-right: 1px solid #e3e6f0; width: 0.1px; height: 30px;"></div>
+                        </center>
+                    </td>
+                    <td style="vertical-align: top; width: 20%; text-align: center;">
+                        <input type="text" id="qtypenm" style="border: #dbdad9 1px solid;"/>
+                    </td>
+                    <td>
+                        <center>
+                            <div style="border-right: 1px solid #e3e6f0; width: 0.1px; height: 30px;"></div>
+                        </center>
+                    </td>
+                    <td style="vertical-align: top; width: 10%; text-align: center;">
+                        <input type="text" id="ratio" style="border: #dbdad9 1px solid;" placeholder=""/>
+                    </td>
+                    <td>
+                        <center>
+                            <div style="border-right: 1px solid #e3e6f0; width: 0.1px; height: 30px;"></div>
+                        </center>
+                    </td>
+                    <td style="vertical-align: top; width: 50%; text-align: center; ">
+                        <button class="btn btn-success" type="button" name="complete">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-check"></i>
+                            </span>등록
+                        </button>
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal" id="exitBtn">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-trash"></i>
+                            </span>나가기
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title></title>
+
+    <!-- Custom fonts for this template-->
+    <link href="/bootstrap/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="/bootstrap/css/sb-admin-2.min.css" rel="stylesheet" />
+
+</head>
+<!-- Bootstrap core JavaScript-->
+<script src="/bootstrap/vendor/jquery/jquery.min.js"></script>
+<script src="/bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- Core plugin JavaScript-->
+<script src="/bootstrap/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+<!-- Custom scripts for all pages-->
+<script src="/bootstrap/js/sb-admin-2.min.js"></script>
+
+<!-- Page level plugins -->
+<script src="/bootstrap/vendor/chart.js/Chart.min.js"></script>
+<script>
+    function fnInsertAuth(){
+        console.log("!111");
+        $('#authModal .modal-content').load("queTypeRatio/queTypeRatioAuthModal");
+        $('#authModal').modal({});
+    }
+
+    function fnDeleteAuth(){
+        console.log("!222");
+        var cnt = 0;
+        const checkboxes = document.getElementsByName("authChk");
+        checkboxes.forEach((cb) => {
+            if(cb.checked){
+                var authcd = 'authcd='+document.getElementById('authcd' + cb.value).innerText;
+                var authnm = document.getElementById('authnm' + cb.value).innerText;
+                cnt++;
+
+                if(!confirm(authnm+"를 삭제하시겠습니까?\n삭제시 인증분야의 세부분야도 삭제됩니다.")){return;}
+
+                //인증분야삭제
+                $.ajax({
+                    url: "/admin-service/queTypeRatio/queTypeRatioAuthModal/deleteAuth",
+                    data: authcd,
+                    type: 'POST',
+                    success: function onData(data){
+                        alert("삭제되었습니다.");
+                        location.reload();
+                    } ,
+                    error:function onError(error){
+                        alert("실패하였습니다. [원인] : "+error);
+                        console.log(error);
+                    }
+                });
+            }
+        })
+
+        if(cnt == 0){
+            alert("삭제 체크대상이 없습니다.");
+        }
+    }
+
+    function fnInsertAUthDetail(){
+        console.log("!333");
+        $('#authModal .modal-content').load("queTypeRatio/queTypeRatioAuthDetailModal");
+        $('#authModal').modal({});
+    }
+
+    function fnDeleteAUthDetail(){
+        console.log("!444");
+        var cnt = 0;
+        const checkboxes = document.getElementsByName("authDetailChk");
+        checkboxes.forEach((cb) => {
+            if(cb.checked){
+                console.log(cb.value)
+                console.log(document.getElementById('qtypecd' + cb.value))
+                var qtypecd = 'qtypecd='+document.getElementById('qtypecd' + cb.value).innerText;
+                var qtypenm = document.getElementById('qtypenm' + cb.value).innerText;
+                cnt++;
+
+                if(!confirm(qtypenm+"를 삭제하시겠습니까?")){return;}
+
+                //인증분야삭제
+                $.ajax({
+                    url: "/admin-service/queTypeRatio/queTypeRatioAuthModal/deleteQtype",
+                    data: qtypecd,
+                    type: 'POST',
+                    success: function onData(data){
+                        alert("삭제되었습니다.");
+                        location.reload();
+                    } ,
+                    error:function onError(error){
+                        alert("실패하였습니다. [원인] : "+error);
+                        console.log(error);
+                    }
+                });
+            }
+        })
+
+        if(cnt == 0){
+            alert("삭제 체크대상이 없습니다.");
+        }
+    }
+
+    function fnCheckOne(element) {
+        const checkboxes = document.getElementsByName("authChk");
+        checkboxes.forEach((cb) => {
+            cb.checked = false;
+        })
+
+        element.checked = true
+    }
+
+    function fnSearchAuthDetail(authcd){
+        var param = 'authcd='+authcd;
+        // console.log(param);
+        $("#authQueTypeRatioContent").html('');
+        $.ajax({
+            url: "/admin-service/queTypeRatio/searchAuthDetail",
+            data: param,
+            type: 'POST',
+            success: function onData(data){
+                // console.log(data);
+                var HtmlTot = "";
+                const obj = data;
+
+                //authQueTypeRatioContent 갱신
+                for (var i in obj){
+                    const authQueTypeRatioList = new Map(Object.entries(obj[i]));
+                    // console.log(authQueTypeRatioList);
+                    var authcd = authQueTypeRatioList.get("authcd");
+                    var authnm = authQueTypeRatioList.get("authnm");
+                    var ration = authQueTypeRatioList.get("ration")+"%";
+                    var qtypecd = authQueTypeRatioList.get("qtypecd");
+                    var qtypenm = authQueTypeRatioList.get("qtypenm");
+
+                    HtmlTot = HtmlTot+makeHtml(authcd, authnm, ration, qtypecd, qtypenm,i);
+                }
+                $("#authQueTypeRatioContent").html(HtmlTot);
+            } ,
+            error:function onError(error){
+                console.log(error);
+            }
+        });
+    }
+    
+    function makeHtml(authcd, authnm, ration, qtypecd, qtypenm, idx){
+        var html =
+        "<tr style=\"border-bottom: #5a5c69 1px dashed; width: 100%; height: 50px; background-color: white;\">\n" +
+            "<td style=\"width: 20%; text-align: center; font-weight: bold;\">\n" +
+                "<div>"+authnm+"</div>\n" +
+            "</td>\n" +
+            "<td style=\"width: 25%; text-align: center; font-weight: bold;\">\n" +
+                "<div id=\"qtypecd"+idx+"\">"+qtypecd+"</div>\n" +
+            "</td>\n" +
+            "<td style=\"width: 25%; text-align: center; font-weight: bold;\">\n" +
+                "<div id=\"qtypenm"+idx+"\">"+qtypenm+"</div>\n" +
+            "</td>\n" +
+            "<td style=\"width: 20%; text-align: center; font-weight: bold;\">\n" +
+                "<div>"+ration+"</div>\n" +
+            "</td>\n" +
+            "<td style=\"width: 10%; text-align: center; font-weight: bold;\">\n" +
+            "   <input type=\"checkbox\" name=\"authDetailChk\" value=\""+idx+"\">\n" +
+            "</td>" +
+        "</tr>";
+
+        return html;
+    }
+</script>
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <section class="content-side-bar" th:replace="common/sidebar::common-side-bar"></section>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <section class="content-top-bar" th:replace="common/topbar::common-top-bar"></section>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">인증분야 및 가중치관리</h1>
+                    </div>
+
+                    <div>
+                        <h6 class="h6 mb-0 text-gray-600">인증분야 및 인증세부분야의 출제비중을 관리하는 화면입니다.</h6>
+                    </div>
+                    <hr style="border-bottom: #e3e6f0 1px solid">
+
+                    <!-- Content Row -->
+                    <div class="row" style="width: 100%">
+                        <div style="width: 40%; height: 700px; border-right: #aeb0b8 1px dashed;">
+                            <div class="">
+                                <div class="col-lg-6 mb-4" style="max-width: 100%"  >
+                                    <div class="card text-white shadow" style="background: #f6c23e">
+                                        <div style="font-size: 15px; height: 40px;">
+                                            <div style="padding-left: 20px; padding-top: 5px; width: 60%;">
+                                                <span style="font-size: 16px;">인증분야</span>
+                                                <div class="fas fa-plus-circle text-white" style="padding-top: 7px; padding-left:20px;"
+                                                     onclick="fnInsertAuth()">
+                                                </div>
+                                                <div class="fas fa-minus-circle text-white" style="padding-top: 7px; padding-left:20px;"
+                                                     onclick="fnDeleteAuth()">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body text-dark">
+                                <table style="width: 100%">
+                                    <thead>
+                                    <tr >
+                                        <td class="text-lg-center font-weight-bolder h5 border-bottom-warning"
+                                            style="width: 10%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                                            순서
+                                        </td>
+                                        <td class="text-lg-center font-weight-bolder h5 border-bottom-warning"
+                                            style="width: 20%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                                            인증분야코드
+                                        </td>
+                                        <td class="text-lg-center font-weight-bolder h5 border-bottom-warning"
+                                            style="width: 30%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                                            인증분야코드명
+                                        </td>
+                                        <td class="text-lg-center font-weight-bolder h5 border-bottom-warning"
+                                            style="width: 20%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                                            출제범위
+                                        </td>
+                                        <td class="text-lg-center font-weight-bolder h5 border-bottom-warning"
+                                            style="width: 20%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                                            삭제
+                                        </td>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="authList, al : ${authList}"
+                                        style="border-bottom: #5a5c69 1px dashed; width: 100%; height: 50px; background-color: white"
+                                        th:attr="onclick=|fnSearchAuthDetail('${authList.authcd}')|";
+                                        onmouseover="this.style.backgroundColor='#a9a9a9'"
+                                        onmouseout="this.style.backgroundColor='white'">
+                                        <td style="width: 10%; text-align: center; font-weight: bold;">
+                                            <div th:text="${authList.ord}" ></div>
+                                        </td>
+                                        <td style="width: 20%; text-align: center; font-weight: bold;">
+                                            <div th:text="${authList.authcd}" th:id="authcd+${al.index}"></div>
+                                        </td>
+                                        <td style="width: 30%; text-align: center; font-weight: bold;">
+                                            <div th:text="${authList.nm}" th:id="authnm+${al.index}"></div>
+                                        </td>
+                                        <td style="width: 20%; text-align: center; font-weight: bold;">
+                                            <div th:text="${authList.use_yn}" th:id="use_yn+${al.index}"></div>
+                                        </td>
+                                        <td style="width: 20%; text-align: center; font-weight: bold;">
+                                            <input type="checkbox" name="authChk" th:value="${al.index}" onclick="fnCheckOne(this)">
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div style="width: 60%; height: 700px;">
+                            <div class="">
+                                <div class="col-lg-6 mb-4" style="max-width: 100%"  >
+                                    <div class="card text-white shadow" style="background: #f6c23e">
+                                        <div style="font-size: 15px; height: 40px;">
+                                            <div style="padding-left: 20px; padding-top: 5px; width: 60%;">
+                                                <span style="font-size: 16px;">인증세부분야</span>
+                                                <div class="fas fa-plus-circle text-white" style="padding-top: 7px; padding-left:20px;"
+                                                     onclick="fnInsertAUthDetail()">
+                                                </div>
+                                                <div class="fas fa-minus-circle text-white" style="padding-top: 7px; padding-left:20px;"
+                                                     onclick="fnDeleteAUthDetail()">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body text-dark">
+                                <table style="width: 100%">
+                                    <thead>
+                                    <tr >
+                                        <td class="text-lg-center font-weight-bolder h5 border-bottom-warning"
+                                            style="width: 20%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                                            인증분야
+                                        </td>
+                                        <td class="text-lg-center font-weight-bolder h5 border-bottom-warning"
+                                            style="width: 25%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                                            인증세부코드
+                                        </td>
+                                        <td class="text-lg-center font-weight-bolder h5 border-bottom-warning"
+                                            style="width: 25%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                                            인증세부명
+                                        </td>
+                                        <td class="text-lg-center font-weight-bolder h5 border-bottom-warning"
+                                            style="width: 20%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                                            출제비중
+                                        </td>
+                                        <td class="text-lg-center font-weight-bolder h5 border-bottom-warning"
+                                            style="width: 10%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                                            삭제
+                                        </td>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="authQueTypeRatioContent">
+                                    <tr th:each="authQueTypeRatioList, atl : ${authQueTypeRatioList}"
+                                        style="border-bottom: #5a5c69 1px dashed; width: 100%; height: 50px; background-color: white">
+                                        <td style="width: 20%; text-align: center; font-weight: bold;">
+                                            <div th:text="${authQueTypeRatioList.AUTHNM}" ></div>
+                                        </td>
+                                        <td style="width: 25%; text-align: center; font-weight: bold;">
+                                            <div th:text="${authQueTypeRatioList.QTYPECD}" th:id="qtypecd+${atl.index}"></div>
+                                        </td>
+                                        <td style="width: 25%; text-align: center; font-weight: bold;">
+                                            <div th:text="${authQueTypeRatioList.QTYPENM}" th:id="qtypenm+${atl.index}"></div>
+                                        </td>
+                                        <td style="width: 20%; text-align: center; font-weight: bold;">
+                                            <div th:text="${authQueTypeRatioList.RATION}+'%'"></div>
+                                        </td>
+                                        <td style="width: 10%; text-align: center; font-weight: bold;">
+                                            <input type="checkbox" name="authDetailChk" th:value="${atl.index}">
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Moa Modal-->
+            <div class="modal fade" id="authModal" tabindex="-1" role="dialog" aria-labelledby="historyModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Footer -->
+            <section class="content-footer-bar" th:replace="common/footer::common-footer-bar"></section>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+</body>
+
+</html>

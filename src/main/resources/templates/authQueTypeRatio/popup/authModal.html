@@ -1,0 +1,127 @@
+<style>
+    ::placeholder {
+        color: gray;
+        font-size: 12px;
+    }
+</style>
+<script>
+    $(document).ready(function (){
+
+        $("button[name='complete']").click(function (){
+            var param_ord = $("#ord").val();
+            var param_authcd = $("#authcd").val();
+            var param_authnm = $("#authnm").val();
+            var param_use_yn = $("#use_yn").val();
+
+            if(param_ord == "") {alert("순서를 입력하세요."); return;}
+            if(param_authcd == "") {alert("인증분야코드를 입력하세요."); return;}
+            if(param_authnm == "") {alert("인증분야명를 입력하세요."); return;}
+
+            var AuthVO = {
+                authcd:param_authcd,nm:param_authnm,ord:param_ord,use_yn:param_use_yn
+            }
+
+            //인증분야저장
+            $.ajax({
+                url: "/admin-service/queTypeRatio/queTypeRatioAuthModal/insertAuth",
+                data: AuthVO,
+                type: 'POST',
+                success: function onData(data){
+                    alert("저장 되었습니다.");
+                    $("#exitBtn").click();
+                    location.reload();
+                } ,
+                error:function onError(error){
+                    alert("실패하였습니다. [원인] : "+error);
+                    console.log(error);
+                }
+            });
+        });
+
+    });
+</script>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<div class="modal-header bg-primary">
+    <h5 class="modal-title h5" id="historyModalLabel" style="color: white">인증분야 추가하기</h5>
+    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">×</span>
+    </button>
+</div>
+<div class="">
+    <div  style="height:100px;">
+        <table style="width: 100%; border-spacing: 10px; border-collapse: separate;">
+            <thead>
+                <tr >
+                    <td class="text-secondary text-lg-center font-weight-bolder"
+                        style="width: 10%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                        순서
+                    </td>
+                    <td style="width: 2%;"></td>
+                    <td class="text-secondary text-lg-center font-weight-bolder"
+                        style="width: 10%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                        인증분야코드
+                    </td>
+                    <td style="width: 2%;"></td>
+                    <td class="text-secondary text-lg-center font-weight-bolder"
+                        style="width: 10%; text-align: center; border-bottom:#e3e6f0 solid 2px;">
+                        인증분야명
+                    </td>
+                    <td style="width: 2%;"></td>
+                    <td class="text-secondary text-lg-center font-weight-bolder"
+                        style="width: 10%; text-align: center; border-bottom:#e3e6f0 solid 2px;" colspan="2">
+                        출제범위
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="vertical-align: top; width: 10%; text-align: center;">
+                        <input type="text" id="ord" style="border: #dbdad9 1px solid;"/>
+                    </td>
+                    <td>
+                        <center>
+                            <div style="border-right: 1px solid #e3e6f0; width: 0.1px; height: 30px;"></div>
+                        </center>
+                    </td>
+                    <td style="vertical-align: top; width: 10%; text-align: center;">
+                        <input type="text" id="authcd" style="border: #dbdad9 1px solid;"/>
+                    </td>
+                    <td>
+                        <center>
+                            <div style="border-right: 1px solid #e3e6f0; width: 0.1px; height: 30px;"></div>
+                        </center>
+                    </td>
+                    <td style="vertical-align: top; width: 10%; text-align: center;">
+                        <input type="text" id="authnm" style="border: #dbdad9 1px solid;"/>
+                    </td>
+                    <td>
+                        <center>
+                            <div style="border-right: 1px solid #e3e6f0; width: 0.1px; height: 30px;"></div>
+                        </center>
+                    </td>
+                    <td style="vertical-align: top; width: 10%; text-align: center;">
+                        <input type="text" id="use_yn" style="border: #dbdad9 1px solid;" placeholder="ex. 일일:Y  평가:G 시험:E1,E2,E3"/>
+                    </td>
+                    <td>
+                        <center>
+                            <div style="border-right: 1px solid #e3e6f0; width: 0.1px; height: 30px;"></div>
+                        </center>
+                    </td>
+                    <td style="vertical-align: top;width: 50%;  text-align: center; ">
+                        <button class="btn btn-success" type="button" name="complete">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-check"></i>
+                            </span>등록
+                        </button>
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal" id="exitBtn">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-trash"></i>
+                            </span>나가기
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.adminservice.queTypeRatio.mapper.AuthQueTypeRatioMapper">
+
+    <!-- 인증분야리스트 -->
+    <select id="authList" resultType="com.example.adminservice.queTypeRatio.model.AuthVO">
+            SELECT AUTHCD, NM, USE_YN, ORD
+            FROM auth
+            ORDER BY ORD;
+    </select>
+
+    <!-- 인증분야세부리스트 -->
+    <select id="authQueTypeRatioList" resultType="com.example.adminservice.queTypeRatio.model.AuthDetailVO">
+        select t1.AUTHCD
+             , t1.NM AS AUTHNM
+             , t2.QTYPECD
+             , (SELECT NM FROM quetype WHERE QTYPECD = t2.QTYPECD) QTYPENM
+             , t2.RATION
+        from auth t1, ratio t2
+        where t1.AUTHCD = t2.AUTHCD
+        order by t1.ord, t2.QTYPECD;
+    </select>
+
+    <!-- 선택인증분야세부리스트 -->
+    <select id="authQueTypeRatioSelect" parameterType="String" resultType="com.example.adminservice.queTypeRatio.model.AuthDetailVO">
+        select t1.AUTHCD
+             , t1.NM AS AUTHNM
+             , t2.QTYPECD
+             , (SELECT NM FROM quetype WHERE QTYPECD = t2.QTYPECD) QTYPENM
+             , t2.RATION
+        from auth t1, ratio t2
+        where t1.AUTHCD = t2.AUTHCD
+          and t1.AUTHCD = #{authcd}
+        order by t1.ord, t2.QTYPECD;
+    </select>
+
+    <!--인증분야저장 -->
+    <insert id="insertAuth" parameterType="com.example.adminservice.queTypeRatio.model.AuthVO">
+        INSERT INTO auth(AUTHCD, NM, ORD, USE_YN)
+            VALUE(#{authcd}, #{nm}, #{ord}, #{use_yn});
+    </insert>
+
+    <!--인증분야삭제-->
+    <delete id="deleteAuth" parameterType="String">
+        DELETE FROM auth WHERE authcd = #{authcd}
+    </delete>
+
+    <!--인증세부분야삭제-->
+    <delete id="deleteQtype" parameterType="String">
+        DELETE FROM quetype WHERE QTYPECD = #{qtypecd}
+    </delete>
+
+    <!--인증세부분야비중삭제-->
+    <delete id="deleteQtypeRatio" parameterType="String">
+        DELETE FROM ratio WHERE QTYPECD = #{qtypecd}
+    </delete>
+
+    <!--인증세부분야저장(quetype) -->
+    <insert id="insertQtype" parameterType="com.example.adminservice.queTypeRatio.model.AuthDetailVO">
+        <selectKey keyProperty="IDX" resultType="int" order="BEFORE">
+            select max(ORD)+1 idx FROM quetype
+        </selectKey>
+        INSERT INTO quetype(QTYPECD, NM, ORD)
+            VALUE(#{QTYPECD}, #{QTYPENM}, #{IDX});
+    </insert>
+
+    <!--인증세부분야저장(ratio) -->
+    <insert id="insertQtypeRatio" parameterType="com.example.adminservice.queTypeRatio.model.AuthDetailVO">
+        INSERT INTO ratio(AUTHCD, QTYPECD, RATION)
+            VALUE(#{AUTHCD}, #{QTYPECD}, #{RATION});
+    </insert>
+</mapper>

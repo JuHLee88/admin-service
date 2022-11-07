@@ -1,0 +1,111 @@
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<div class="modal-header bg-gradient-primary">
+    <h5 class="modal-title h5" id="historyModalLabel" style="color: white">문제분류별 문제보기</h5>
+    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">×</span>
+    </button>
+</div>
+<script>
+    $(document).ready(function (){
+        $("button[name='DeleteQue']").click(function (){
+            var qidPop = "qid="+$("#qidPop").val();
+
+            console.log(qidPop);
+            //기존 문제 및 문제아이템 삭제
+            $.ajax({
+                url: "/admin-service/queGen/queGenDelete",
+                data: qidPop,
+                type: 'POST',
+                success: function onData(data){
+                    location.href = "/admin-service/queGen";
+                } ,
+                error:function onError(error){
+                    console.log(error);
+                }
+            });
+
+        });
+
+        $("button[name='ModifyQue']").click(function (){
+            var qidPop = "qid="+$("#qidPop").val();
+            location.href = "/admin-service/queGenModify?" + qidPop
+        });
+    });
+</script>
+<div>
+    <h4></h4>
+</div>
+<div>
+    <h4>문제상세정보</h4>
+</div>
+
+<div th:each="data: ${queGenDetail}">
+    <input type="hidden" id="qidPop" th:value="${data.qid}">
+    <table class="table table-bordered dataTable">
+        <colgroup>
+            <col style="width: 12%;"/>
+            <col style="width: 15%;"/>
+            <col style="width: 12%;"/>
+            <col style="width: 22%;"/>
+            <col style="width: 12%;"/>
+            <col style="width: *;"/>
+        </colgroup>
+        <tr>
+            <td>문제분류</td>
+            <td><div th:text="${data.qtypenm}"/></td>
+            <td>출제자</td>
+            <td><div th:text="${data.writernm}"/></td>
+            <td>문제ID</td>
+            <td><div th:text="${data.qid}" th:value="${data.qid}"/></td>
+        </tr>
+        <tr>
+            <td>정답유형</td>
+            <td><div th:text="${data.anstypenm}"/></td>
+            <td>난이도</td>
+            <td><div th:text="${data.lvlnm}"/></td>
+            <td>등록일</td>
+            <td><div th:text="${data.createdt}"/></td>
+        </tr>
+        <tr>
+            <td>문제</td>
+            <td colspan="5"><span style="border" th:text="${data.question}"/></br>
+                <span th:text="${data.itemid1}+'. '"/><span  th:text="${data.item1}"/></br>
+                <span th:text="${data.itemid2}+'. '"/><span  th:text="${data.item2}"/></br>
+                <span th:text="${data.itemid3}+'. '"/><span  th:text="${data.item3}"/></br>
+                <span th:text="${data.itemid4}+'. '"/><span  th:text="${data.item4}"/>
+            </td>
+        </tr>
+        <tr>
+            <td>정답</td>
+            <td colspan="5">
+                <span th:text="${data.answer}"/>
+            </td>
+        </tr>
+        <tr>
+            <td>해설</td>
+            <td colspan="5">
+                <span th:text="${data.explanation}"/>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-secondary" type="button" name="ModifyQue">
+                <span class="icon text-white-50">
+                    <i class="fas fa-edit"></i>
+                </span>수정
+    </button>
+    <button class="btn btn-danger" type="button" name="DeleteQue">
+                <span class="icon text-white-50">
+                    <i class="fas fa-trash"></i>
+                </span>삭제
+    </button>
+</div>
+<div class="modal-body">
+    <div style="height:200px;">
+        <div class="modal-footer">
+        </div>
+    </div>
+</div>
+

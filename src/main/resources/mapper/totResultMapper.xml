@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.adminservice.totResult.mapper.TotResultMapper">
+
+    <select id="totResultSelectBox" parameterType="String" resultType="HashMap">
+        select t2.QTYPECD
+             , t2.NM
+        from ratio t1, quetype t2
+        where t1.AUTHCD = #{param_auth}
+          and t1.QTYPECD = t2.QTYPECD
+    </select>
+
+    <select id="searchTotResult" parameterType="String" resultType="HashMap">
+        select t1.sabun
+             , (select USER_NAME from USER where USER_ID = t1.sabun) username
+             , t1.studytype
+             , (select nm from auth where authcd = t1.authcd) authnm
+             , (select nm from quetype where QTYPECD = t2.qtyp1) qtyp1nm
+             , (select nm from quetype where QTYPECD = t2.qtyp2) qtyp2nm
+             , (select nm from quetype where QTYPECD = t2.qtyp3) qtyp3nm
+             , (select nm from quetype where QTYPECD = t2.qtyp4) qtyp4nm
+             , t1.score
+             , cast(rank() over (order by t1.score desc) as char ) as rank_num
+             , t1.startdt
+             , t1.enddt
+        from study t1,
+             (select t3.AUTHCD
+                   , max(case when (t3.num = 1) then t3.QTYPECD else '' end) qtyp1
+                   , max(case when (t3.num = 2) then t3.QTYPECD else '' end) qtyp2
+                   , max(case when (t3.num = 3) then t3.QTYPECD else '' end) qtyp3
+                   , max(case when (t3.num = 4) then t3.QTYPECD else '' end) qtyp4
+              from (
+                       select t2.authcd
+                            , t1.QTYPECD
+                            , row_number() over (partition by t2.authcd order by QTYPECD asc) num
+                       from ratio t1,
+                            auth t2
+                       where t1.AUTHCD = t2.authcd
+                   ) t3
+              group by t3.AUTHCD) t2
+        where t1.authcd = t2.AUTHCD
+        <choose>
+            <when test='gubun != null'>
+                and t1.studytype = #{gubun}
+            </when>
+        </choose>
+        <choose>
+            <when test='auth != null'>
+                and t1.authcd = #{auth}
+            </when>
+        </choose>
+          and substring(t1.enddt ,1, 12) between #{staymd} and #{endymd}
+    </select>
+</mapper>

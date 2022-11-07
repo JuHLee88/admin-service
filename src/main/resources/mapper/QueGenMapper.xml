@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.adminservice.queGen.mapper.QueGenMapper">
+
+
+    <select id="queGenList" resultType="com.example.adminservice.queGen.model.QueVO">
+        select t.rnum
+             , t.qid
+             , t.qtypenm
+             , t.question
+             , t.url
+             , t.writernm
+             , t.createdt
+             , t.admnum
+             , t.useyn
+        from (
+                 select r_tbl.rnum
+                      , r_tbl.qid
+                      , r_tbl.qtypenm
+                      , r_tbl.question as question
+                      , r_tbl.url
+                      , r_tbl.writernm
+                      , r_tbl.createdt
+                      , r_tbl.admnum
+                      , r_tbl.useyn
+                 from (select row_number()               over (order by a.qid desc) rnum
+                            , a.qid
+                            , b.nm                    as qtypenm
+                            , a.question
+                            , a.url
+                            , c.name                  as writernm
+                            , date_format(STR_TO_DATE(a.createdt, '%Y%m%d%H%i%S'),
+                                          '%Y-%m-%d') as createdt
+                            , a.admnum
+                            , a.useyn
+                       from studydb.question a
+                          , studydb.quetype b
+                          , studydb.users c
+                       where a.qtypecd = b.qtypecd
+                         and a.writer = c.sabun
+                      ) r_tbl
+             ) t
+    </select>
+
+    <select id="queGenListSearch" resultType="com.example.adminservice.queGen.model.QueVO">
+        select t.rnum
+             , t.qid
+             , t.qtypenm
+             , t.question
+             , t.url
+             , t.writernm
+             , t.createdt
+             , t.admnum
+             , t.useyn
+        from (
+                 select r_tbl.rnum
+                      , r_tbl.qid
+                      , r_tbl.qtypenm
+                      , r_tbl.question as question
+                      , r_tbl.url
+                      , r_tbl.writernm
+                      , r_tbl.createdt
+                      , r_tbl.admnum
+                      , r_tbl.useyn
+                 from (select row_number() over (order by a.qid desc) rnum
+                            , a.qid
+                            , b.nm                    as qtypenm
+                            , a.question
+                            , a.url
+                            , c.name                  as writernm
+                            , date_format(STR_TO_DATE(a.createdt, '%Y%m%d%H%i%S'),
+                                          '%Y-%m-%d') as createdt
+                            , a.admnum
+                            , a.useyn
+                       from studydb.question a
+                          , studydb.quetype b
+                          , studydb.users c
+                       where a.qtypecd = b.qtypecd
+                         and a.writer = c.sabun
+                         and a.QTYPECD like #{authDetail}
+                         and (select authcd from ratio where QTYPECD =  a.QTYPECD) like #{auth}
+                         and a.CREATEDT between #{staymd} and #{endymd}
+                        <choose>
+                         <when test='searchItem != "%"'>
+                             and ${searchItem} = #{searchInput}
+                         </when>
+                        </choose>
+                      ) r_tbl
+             ) t
+    </select>
+
+
+    <select id="queGenDetail" resultType="com.example.adminservice.queGen.model.QueListVO">
+        select a.qid
+             , a.admnum
+             , a.qtypecd
+             , (select b.nm
+                from studydb.quetype b
+                where b.qtypecd = a.qtypecd)                                        as qtypenm
+             , replace(a.question, chr(10), '')                                     as question
+             , a.anstype
+             , case a.ANSTYPE when 'M' THEN '객관식' ELSE '주관식' END                    as anstypenm
+             , a.lvl
+             , case a.lvl WHEN '1' THEN '상' WHEN '2' THEN '중' WHEN '3' THEN '하' END as lvlnm
+             , a.useyn
+             , CASE a.useyn WHEN 'Y' THEN '사용' WHEN 'N' THEN '사용안함' END             AS useynnm
+             , a.explanation                                                           explanation
+             , a.source
+             , a.url
+             , a.writer
+             , (select c.name from studydb.users c where c.sabun = a.writer)        as writernm
+             , a.requser
+             , (select c.name from studydb.users c where c.sabun = a.requser)       as requsernm
+             , (select d.name from studydb.users d where d.sabun = a.modifyuser)    as modifyuser
+             , date_format(STR_TO_DATE(a.createdt, '%Y%m%d%H%i%S'),
+                           '%Y-%m-%d')                                              as createdt
+             , date_format(STR_TO_DATE(a.modifydt, '%Y%m%d%H%i%S'),
+                           '%Y-%m-%d')                                              as modifydt
+             , (select itemid from studydb.queitem where qid = a.qid and itemid = 1)   itemid1
+             , (select item from studydb.queitem where qid = a.qid and itemid = 1)     item1
+             , (select itemid from studydb.queitem where qid = a.qid and itemid = 2)   itemid2
+             , (select item from studydb.queitem where qid = a.qid and itemid = 2)     item2
+             , (select itemid from studydb.queitem where qid = a.qid and itemid = 3)   itemid3
+             , (select item from studydb.queitem where qid = a.qid and itemid = 3)     item3
+             , (select itemid from studydb.queitem where qid = a.qid and itemid = 4)   itemid4
+             , (select item from studydb.queitem where qid = a.qid and itemid = 4)     item4
+             , (select item from studydb.queitem where qid = a.qid and anscd = '0')    answer
+        from studydb.question a
+        where a.qid = #{qid}
+    </select>
+
+
+    <select id="queGenModifyDetail" resultType="com.example.adminservice.queGen.model.QueListVO">
+        select a.qid
+             , (select (select nm from auth where AUTHCD = t1.AUTHCD)
+                from ratio t1 where QTYPECD = a.QTYPECD) authnm
+             , a.qtypecd
+             , (select b.nm
+                from studydb.quetype b
+                where b.qtypecd = a.qtypecd)                                        as qtypenm
+             , replace(a.question, chr(10), '')                                     as question
+             , a.lvl
+             , case a.lvl WHEN '1' THEN '상' WHEN '2' THEN '중' WHEN '3' THEN '하' END as lvlnm
+             , a.explanation                                                           explanation
+             , (select itemid from studydb.queitem where qid = a.qid and itemid = 1)   itemid1
+             , (select item from studydb.queitem where qid = a.qid and itemid = 1)     item1
+             , (select itemid from studydb.queitem where qid = a.qid and itemid = 2)   itemid2
+             , (select item from studydb.queitem where qid = a.qid and itemid = 2)     item2
+             , (select itemid from studydb.queitem where qid = a.qid and itemid = 3)   itemid3
+             , (select item from studydb.queitem where qid = a.qid and itemid = 3)     item3
+             , (select itemid from studydb.queitem where qid = a.qid and itemid = 4)   itemid4
+             , (select item from studydb.queitem where qid = a.qid and itemid = 4)     item4
+             , (select item from studydb.queitem where qid = a.qid and anscd = '0')    answer
+        from studydb.question a
+        where a.qid = #{qid}
+    </select>
+
+
+    <!-- 문제분류에 따른 인증분야 조회-->
+    <select id="selectQueType" resultType="com.example.adminservice.queGen.model.QueVO">
+        select a.authcd as cd
+             , a.nm
+        from studydb.auth a
+           , studydb.ratio b
+           , studydb.quetype c
+        where b.authcd = a.AUTHCD
+          and b.qtypecd = c.QTYPECD
+        group by cd
+        order by a.ord, c.ord
+    </select>
+
+    <select id="selectQueTypeByAuth" resultType="com.example.adminservice.queGen.model.QueVO">
+        select c.qtypecd                     as cd
+             , CONCAT(c.qtypecd, '. ', c.nm) as nm
+        from studydb.auth a
+           , studydb.ratio b
+           , studydb.quetype c
+        where b.AUTHCD = a.AUTHCD
+          and b.QTYPECD = c.QTYPECD
+        order by c.ord
+    </select>
+
+    <select id="maxQid" resultType="com.example.adminservice.queGen.model.QueVO">
+        select lpad(nvl(max(a.qid) + 1, '1'), 6, '0') as qid
+        from studydb.question a
+    </select>
+
+    <!--등록하기-->
+    <insert id="getqueWrite" parameterType="com.example.adminservice.queGen.model.QueListVO">
+        INSERT INTO studydb.question(qid, qtypecd, question, anstype, writer, createdt, lvl, useyn, modifyuser, admnum,
+                                     explanation)
+            VALUE (#{qid},#{qtypecd},#{question},'M','99999999',#{createdt},#{lvl},'Y','99999999','70', #{explanation});
+    </insert>
+
+    <insert id="getqueWrite1" parameterType="com.example.adminservice.queGen.model.QueListVO">
+        insert into studydb.queitem(qid, itemid, item, anscd)
+            value (#{qid}, #{itemid1},#{item1},#{anscd1});
+    </insert>
+
+    <insert id="getqueWrite2" parameterType="com.example.adminservice.queGen.model.QueListVO">
+        insert into studydb.queitem(qid, itemid, item, anscd)
+            value (#{qid}, #{itemid2},#{item2},#{anscd2});
+    </insert>
+
+    <insert id="getqueWrite3" parameterType="com.example.adminservice.queGen.model.QueListVO">
+        insert into studydb.queitem(qid, itemid, item, anscd)
+            value (#{qid}, #{itemid3},#{item3},#{anscd3});
+    </insert>
+
+    <insert id="getqueWrite4" parameterType="com.example.adminservice.queGen.model.QueListVO">
+        insert into studydb.queitem(qid, itemid, item, anscd)
+            value (#{qid}, #{itemid4},#{item4},#{anscd4});
+    </insert>
+
+    <!--문제삭제-->
+    <delete id="queGenDelete" parameterType="String">
+        DELETE FROM question WHERE QID = #{qidPop}
+    </delete>
+
+    <!--문제아이템삭제-->
+    <delete id="queGenItemDelete" parameterType="String">
+        DELETE FROM queitem WHERE QID = #{qidPop}
+    </delete>
+
+    <update id="queGenModifyUpdateQue" parameterType="com.example.adminservice.queGen.model.QueListVO">
+        UPDATE question
+           SET LVL = #{lvl}
+             , QUESTION = #{question}
+             , EXPLANATION = #{explanation}
+         WHERE QID = #{qid}
+    </update>
+
+    <update id="queGenModifyUpdateQueItem1" parameterType="com.example.adminservice.queGen.model.QueListVO">
+        UPDATE queitem
+        SET ITEM = #{item1}
+        <choose>
+            <when test='anscd == "1"'>
+                ,ANSCD = '0'
+            </when>
+            <otherwise>
+                ,ANSCD = null
+            </otherwise>
+        </choose>
+        WHERE ITEMID = '1'
+          AND QID = #{qid}
+    </update>
+
+    <update id="queGenModifyUpdateQueItem2" parameterType="com.example.adminservice.queGen.model.QueListVO">
+        UPDATE queitem
+        SET ITEM = #{item2}
+        <choose>
+            <when test='anscd == "2"'>
+                ,ANSCD = '0'
+            </when>
+            <otherwise>
+                ,ANSCD = null
+            </otherwise>
+        </choose>
+        WHERE ITEMID = '2'
+        AND QID = #{qid}
+    </update>
+
+    <update id="queGenModifyUpdateQueItem3" parameterType="com.example.adminservice.queGen.model.QueListVO">
+        UPDATE queitem
+        SET ITEM = #{item3}
+        <choose>
+            <when test='anscd == "3"'>
+                ,ANSCD = '0'
+            </when>
+            <otherwise>
+                ,ANSCD = null
+            </otherwise>
+        </choose>
+        WHERE ITEMID = '3'
+        AND QID = #{qid}
+    </update>
+
+    <update id="queGenModifyUpdateQueItem4" parameterType="com.example.adminservice.queGen.model.QueListVO">
+        UPDATE queitem
+        SET ITEM = #{item4}
+        <choose>
+            <when test='anscd == "4"'>
+                ,ANSCD = '0'
+            </when>
+            <otherwise>
+                ,ANSCD = null
+            </otherwise>
+        </choose>
+        WHERE ITEMID = '4'
+        AND QID = #{qid}
+    </update>
+
+</mapper>
