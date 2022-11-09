@@ -144,18 +144,18 @@
                                 <tbody>
                                 <tr th:each="data: ${queGenList}"
                                     th:idx="${data.rnum}"
-                                    class="btn-light" style="height: 30px;">
-                                    <td style="text-align: center; padding: 8.5px;" name="idx"
+                                    class="btn-light" style="height: 30px; vertical-align: middle;">
+                                    <td style="text-align: center; padding: 8.5px; vertical-align: middle;" name="idx"
                                         th:text="${data.rnum}"></td>
-                                    <td style="text-align: center; padding: 8.5px;" name="gubun"
+                                    <td style="text-align: center; padding: 8.5px; vertical-align: middle;" name="gubun"
                                         th:text="${data.qid}"></td>
-                                    <td style="text-align: center; padding: 8.5px;" name="title"
+                                    <td style="text-align: center; padding: 8.5px; vertical-align: middle;" name="title"
                                         th:text="${data.qtypenm}"></td>
-                                    <td style="text-align: left; padding: 8.5px;" name="replynum"
+                                    <td style="text-align: left; padding: 8.5px; vertical-align: middle;" name="replynum"
                                         th:text="${data.question}"></td>
-                                    <td style="text-align: center; padding: 8.5px;" name="writedt"
+                                    <td style="text-align: center; padding: 8.5px; vertical-align: middle;" name="writedt"
                                         th:text="${data.writernm}"></td>
-                                    <td style="text-align: center; padding: 8.5px;" name="writeuser"
+                                    <td style="text-align: center; padding: 8.5px; vertical-align: middle;" name="writeuser"
                                         th:text="${data.createdt}"></td>
                                     <td style="text-align: center;">
                                         <a class="btn btn-outline-primary btn-icon-split"
