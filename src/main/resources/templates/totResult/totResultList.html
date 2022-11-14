@@ -12,26 +12,26 @@
     <title>직무학습</title>
 
     <!-- Custom fonts for this template -->
-    <link href="http://13.124.0.31:9002/bootstrap/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="http://15.164.45.122:9002/bootstrap/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link
             href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
             rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="http://13.124.0.31:9002/bootstrap/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="http://15.164.45.122:9002/bootstrap/css/sb-admin-2.min.css" rel="stylesheet">
 
     <!-- Custom styles for this page -->
-    <link href="http://13.124.0.31:9002/bootstrap/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="http://15.164.45.122:9002/bootstrap/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
     <!-- Bootstrap core JavaScript-->
-    <script src="http://13.124.0.31:9002/bootstrap/vendor/jquery/jquery.min.js"></script>
-    <script src="http://13.124.0.31:9002/bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="http://15.164.45.122:9002/bootstrap/vendor/jquery/jquery.min.js"></script>
+    <script src="http://15.164.45.122:9002/bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Core plugin JavaScript-->
-    <script src="http://13.124.0.31:9002/bootstrap/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="http://15.164.45.122:9002/bootstrap/vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="http://13.124.0.31:9002/bootstrap/js/sb-admin-2.min.js"></script>
+    <script src="http://15.164.45.122:9002/bootstrap/js/sb-admin-2.min.js"></script>
 
     <!-- eun costum-->
     <style>
@@ -52,7 +52,7 @@
                 console.log(param);
 
                 $.ajax({
-                    url: "http://52.78.161.54:8000/admin-service/totResult",
+                    url: "/admin-service/totResult",
                     data: param,
                     type: 'POST',
                     success: function onData(data){
@@ -121,7 +121,7 @@
                 var param_auth = "auth="+$(this).val();
                 console.log(param_auth);
                 $.ajax({
-                    url: "http://52.78.161.54:8000/admin-service/totResult/selectBox",
+                    url: "/admin-service/totResult/selectBox",
                     data: param_auth,
                     type: 'POST',
                     // dataType: 'json',
@@ -330,7 +330,7 @@
             <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary" href="http://13.124.0.31:9002/login.html">Logout</a>
+                <a class="btn btn-primary" href="http://15.164.45.122:9002/login.html">Logout</a>
             </div>
         </div>
     </div>
@@ -338,11 +338,11 @@
 
 
 <!-- Page level plugins -->
-<script src="http://52.78.161.54:8000/bootstrap/vendor/datatables/jquery.dataTables.min.js"></script>
-<script src="http://52.78.161.54:8000/bootstrap/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+<script src="/bootstrap/vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="/bootstrap/vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
 <!-- Page level custom scripts -->
-<script src="http://52.78.161.54:8000/bootstrap/js/demo/datatables-demo.js"></script>
+<script src="/bootstrap/js/demo/datatables-demo.js"></script>
 
 </body>
 
