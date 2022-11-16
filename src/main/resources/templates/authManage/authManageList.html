@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>직무학습</title>
+
+    <!-- Custom fonts for this template -->
+    <link href="http://15.164.45.122:9002/bootstrap/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+            rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="http://15.164.45.122:9002/bootstrap/css/sb-admin-2.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href="http://15.164.45.122:9002/bootstrap/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="http://15.164.45.122:9002/bootstrap/vendor/jquery/jquery.min.js"></script>
+    <script src="http://15.164.45.122:9002/bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="http://15.164.45.122:9002/bootstrap/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="http://15.164.45.122:9002/bootstrap/js/sb-admin-2.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+
+            $("#saveResult").click(function () {
+                console.log("!222");
+                var cnt = 0;
+                const checkboxes = document.getElementsByName("authDetailChk");
+                checkboxes.forEach((cb) => {
+                    if(cb.checked){
+                        var userId = document.getElementById('userId' + cb.value).innerText;
+                        var userAuth = document.getElementById('userAuth' + cb.value).innerText;
+                        var boardAuth = document.getElementById('boardAuth' + cb.value).options[document.getElementById('boardAuth' + cb.value).selectedIndex].value;
+                        var queAuth = document.getElementById('queAuth' + cb.value).options[document.getElementById('queAuth' + cb.value).selectedIndex].value;
+                        var queTypeAuth = document.getElementById('queTypeAuth' + cb.value).options[document.getElementById('queTypeAuth' + cb.value).selectedIndex].value;
+                        cnt++;
+
+                        var userVO = {
+                            userId:userId,userAuth:userAuth,boardAuth:boardAuth,queAuth:queAuth,queTypeAuth:queTypeAuth
+                        }
+
+                        //인증분야삭제
+                        $.ajax({
+                            url: "/admin-service/authManage/saveAuthManage",
+                            data: userVO,
+                            type: 'POST',
+                            success: function onData(data){
+                                alert("저장되었습니다.");
+                                location.reload();
+                            } ,
+                            error:function onError(error){
+                                alert("실패하였습니다. [원인] : "+error);
+                                console.log(error);
+                            }
+                        });
+                    }
+                })
+
+                if(cnt == 0){
+                    alert("저장 체크대상이 없습니다.");
+                }
+            });
+
+            $("#searchResult").click(function () {
+                var HtmlTot = "";
+                var param = "boardAuth="+$("#boardAuth").val()+"&queAuth="+$("#queAuth").val()+"&queTypeAuth="+$("#queTypeAuth").val();
+                console.log(param);
+
+                $.ajax({
+                    url: "/admin-service/authManage",
+                    data: param,
+                    type: 'POST',
+                    success: function onData(data){
+                        $("#resultTbody").html('');
+                        const obj = data;
+                        for (var i in obj){
+                            const List = new Map(Object.entries(obj[i]));
+                            var userId = List.get("userId");
+                            var userName = List.get("userName");
+                            var userAuth = List.get("userAuth");
+                            var appendDate = List.get("appendDate");
+                            var updateDate = List.get("updateDate");
+                            var boardAuth = List.get("boardAuth");
+                            var queAuth = List.get("queAuth");
+                            var queTypeAuth = List.get("queTypeAuth");
+                            HtmlTot = HtmlTot+makeResultHtml(userId,userName,userAuth,appendDate,updateDate,boardAuth
+                                ,queAuth,queTypeAuth,i);
+                        }
+                        $("#resultTbody").html(HtmlTot);
+                    } ,
+                    error:function onError(error){
+                        console.log(error);
+                    }
+                });
+            });
+
+            function makeResultHtml(userId,userName,userAuth,appendDate,updateDate,boardAuth,queAuth,queTypeAuth,i){
+                let updateDate2 = updateDate==undefined ? "-" : updateDate;
+
+                HtmlTot = "<tr>\n" +
+                            "<td style=\"text-align: center; font-weight: bold; vertical-align: middle;\">\n" +
+                            "    <div>"+userId+"</div>\n" +
+                            "</td>\n" +
+                            "<td style=\"text-align: center; font-weight: bold; vertical-align: middle;\">\n" +
+                            "    <div>"+userName+"</div>\n" +
+                            "</td>\n" +
+                            "<td style=\"text-align: center; font-weight: bold; vertical-align: middle;\">\n" +
+                            "    <div>"+userAuth+"</div>\n" +
+                            "</td>\n" +
+                            "<td style=\"text-align: center; font-weight: bold; vertical-align: middle;\">\n" +
+                            "    <div>"+boardAuth+"</div>\n" +
+                            "</td>\n" +
+                            "<td style=\"text-align: center; font-weight: bold; vertical-align: middle;\">\n" +
+                            "    <div>"+queAuth+"</div>\n" +
+                            "</td>\n" +
+                            "<td style=\"text-align: center; font-weight: bold; vertical-align: middle;\">\n" +
+                            "    <div>"+queTypeAuth+"</div>\n" +
+                            "</td>\n" +
+                            "<td style=\"text-align: center; font-weight: bold; vertical-align: middle;\">\n" +
+                            "    <div>"+appendDate+"</div>\n" +
+                            "</td>\n" +
+                            "<td style=\"text-align: center; font-weight: bold; vertical-align: middle;\">\n" +
+                            "    <div>"+updateDate2+"</div>\n" +
+                            "</td>\n" +
+                            "<td style=\"text-align: center; font-weight: bold; vertical-align: middle;\">\n" +
+                            "    <input type=\"checkbox\" name=\"authDetailChk\" value=\""+i+"\">\n" +
+                            "</td>"+
+                            " </tr>";
+                return HtmlTot;
+            }
+        });
+
+    </script>
+</head>
+
+<body id="page-top" onload="init()">
+
+<!-- Page Wrapper -->
+<div id="wrapper">
+
+    <!-- Sidebar -->
+    <section class="content-side-bar" th:replace="common/sidebar::common-side-bar"></section>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Main Content -->
+        <div id="content">
+
+            <!-- Topbar -->
+            <section class="content-top-bar" th:replace="common/topbar::common-top-bar"></section>
+            <!-- End of Topbar -->
+
+            <!-- Begin Page Content -->
+            <div class="container-fluid">
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">관리자관리</h1>
+                </div>
+                <!-- DataTales Example -->
+                <div class="row">
+                    <div class="card shadow mb-4"  style="width: 65%; height: 800px; overflow: auto;">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="" width="100%" cellspacing="0">
+                                    <thead>
+                                    <tr class="bg-primary" style="color: white">
+                                        <th style="width: 8%; text-align: center; font-size: 13px;">ID</th>
+                                        <th style="width: 9%; text-align: center; font-size: 13px;">성명</th>
+                                        <th style="width: 20%; text-align: center; font-size: 13px;">IP</th>
+                                        <th style="width: 10%;text-align: center; font-size: 13px;">게시판권한</th>
+                                        <th style="width: 10%; text-align: center; font-size: 13px;">문제권한</th>
+                                        <th style="width: 10%; text-align: center; font-size: 13px;">인증분야권한</th>
+                                        <th style="width: 15%; text-align: center; font-size: 13px;">등록일시</th>
+                                        <th style="width: 15%;text-align: center; font-size: 13px;">수정일시</th>
+                                        <th style="width: 5%;text-align: center; font-size: 13px;">저장</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="resultTbody">
+                                    <tr th:each="userList, al : ${getUserList}">
+                                        <td style="text-align: center; font-weight: bold; vertical-align: middle;">
+                                            <div th:text="${userList.userId}" th:id="userId+${al.index}"></div>
+                                        </td>
+                                        <td style="text-align: center; font-weight: bold; vertical-align: middle;">
+                                            <div th:text="${userList.userName}"></div>
+                                        </td>
+                                        <td style="text-align: center; font-weight: bold; vertical-align: middle;">
+                                            <div th:text="${userList.userAuth}" th:id="userAuth+${al.index}"></div>
+                                        </td>
+                                        <td style="text-align: center; font-weight: bold; vertical-align: middle;">
+                                            <select style="border: gray" th:id="boardAuth+${al.index}">
+                                                <option value="Y" th:selected="${userList.boardAuth == 'Y'}">Y</option>
+                                                <option value="N" th:selected="${userList.boardAuth != 'Y'}">N</option>
+                                            </select>
+                                        </td>
+                                        <td style="text-align: center; font-weight: bold; vertical-align: middle;">
+                                            <select style="border: gray" th:id="queAuth+${al.index}">
+                                                <option value="Y" th:selected="${userList.queAuth == 'Y'}">Y</option>
+                                                <option value="N" th:selected="${userList.queAuth != 'Y'}">N</option>
+                                            </select>
+                                        </td>
+                                        <td style="text-align: center; font-weight: bold; vertical-align: middle;">
+                                            <select style="border: gray" th:id="queTypeAuth+${al.index}">
+                                                <option value="Y" th:selected="${userList.queTypeAuth == 'Y'}">Y</option>
+                                                <option value="N" th:selected="${userList.queTypeAuth != 'Y'}">N</option>
+                                            </select>
+                                        </td>
+                                        <td style="text-align: center; font-weight: bold; vertical-align: middle;">
+                                            <div th:text="${userList.appendDate}" ></div>
+                                        </td>
+                                        <td style="text-align: center; font-weight: bold; vertical-align: middle;">
+                                            <div th:text="${userList.updateDate}"></div>
+                                        </td>
+                                        <td style="text-align: center; font-weight: bold; vertical-align: middle;">
+                                            <input type="checkbox" name="authDetailChk" th:value="${al.index}">
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card card-body shadow mb-4"  style="width: 30%; margin-left: 20px; margin-right: 15px;">
+                        <fieldset style="border: #b9babc 1px solid">
+                            <legend class="text-gray-600"
+                                    style="font-size: 15px; width: 100px; padding-left: 10px;">&nbsp;조회조건</legend>
+                            <form name="myform" class="card-body">
+                                <div class="m-0 font-weight-bold text-primary row"
+                                     style="font-size: 18px; font-family: 'Courier New'">
+                                    <div style="width: 121px;">
+                                        게시판권한
+                                    </div>
+                                    <div>
+                                        <select name="boardAuth" id="boardAuth" style="height: 35px; width: 140px; border: #dbdad9 1px solid;">
+                                            <option value="%">선택</option>
+                                            <option value="Y">Y</option>
+                                            <option value="N">N</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="m-0 font-weight-bold text-primary row"
+                                     style="font-size: 18px; font-family: 'Courier New'">
+                                    <div style="width: 121px;">
+                                        문제권한
+                                    </div>
+                                    <div>
+                                        <select name="queAuth" id="queAuth" style="height: 35px; width: 140px; border: #dbdad9 1px solid;">
+                                            <option value="%">선택</option>
+                                            <option value="Y">Y</option>
+                                            <option value="N">N</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="m-0 font-weight-bold text-primary row"
+                                     style="font-size: 18px; font-family: 'Courier New'">
+                                    <div style="width: 121px;">
+                                        인증분야권한
+                                    </div>
+                                    <div>
+                                        <select name="queTypeAuth" id="queTypeAuth" style="height: 35px; width: 140px; border: #dbdad9 1px solid;">
+                                            <option value="%">선택</option>
+                                            <option value="Y">Y</option>
+                                            <option value="N">N</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <br/>
+                                <input type="button" value="저장" class="btn-primary btn d-sm-inline-block"
+                                       style="width: 100px; height: 35px; float: right;" id="saveResult"/>
+                                &nbsp;
+                                <input type="button" value="조회" class="btn-primary btn d-sm-inline-block"
+                                       style="width: 100px; height: 35px; float: right; margin-right: 10px;" id="searchResult"/>
+                                <br/>
+                                <br/>
+                            </form>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+
+            <!-- /.container-fluid -->
+        </div>
+        <!-- End of Main Content -->
+
+        <!-- Footer -->
+        <section class="content-footer-bar" th:replace="common/footer::common-footer-bar"></section>
+        <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+</div>
+<!-- End of Page Wrapper -->
+
+<!-- Scroll to Top Button-->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<!-- Logout Modal-->
+<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-primary" href="http://15.164.45.122:9002/login.html">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Page level plugins -->
+<script src="/bootstrap/vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="/bootstrap/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+<!-- Page level custom scripts -->
+<script src="/bootstrap/js/demo/datatables-demo.js"></script>
+
+</body>
+
+</html>

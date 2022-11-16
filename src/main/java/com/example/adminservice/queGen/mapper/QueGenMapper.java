@@ -1,5 +1,6 @@
 package com.example.adminservice.queGen.mapper;
 
+import com.example.adminservice.authManage.model.UserVO;
 import com.example.adminservice.queGen.model.QueListVO;
 import com.example.adminservice.queGen.model.QueVO;
 import org.apache.ibatis.annotations.Mapper;

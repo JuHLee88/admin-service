@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.adminservice.authManage.mapper.AuthManageMapper">
+
+
+    <select id="getUserList" resultType="com.example.adminservice.authManage.model.UserVO">
+        select USER_NO
+             , USER_ID
+             , USER_PW
+             , USER_NAME
+             , USER_AUTH
+             , APPEND_DATE
+             , UPDATE_DATE
+             , BOARD_AUTH
+             , QUE_AUTH
+             , QUETYPE_AUTH
+         from USER
+    </select>
+
+    <select id="searchUserList" parameterType="String" resultType="com.example.adminservice.authManage.model.UserVO">
+        select USER_NO
+        , USER_ID
+        , USER_PW
+        , USER_NAME
+        , USER_AUTH
+        , APPEND_DATE
+        , UPDATE_DATE
+        , BOARD_AUTH
+        , QUE_AUTH
+        , QUETYPE_AUTH
+        from USER
+        where 1=1
+        <choose>
+            <when test='boardAuth != "%"'>
+                and BOARD_AUTH = #{boardAuth}
+            </when>
+            <when test='queAuth != "%"'>
+                and QUE_AUTH = #{queAuth}
+            </when>
+            <when test='queTypeAuth != "%"'>
+                and QUETYPE_AUTH = #{queTypeAuth}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <update id="saveUserList" parameterType="com.example.adminservice.authManage.model.UserVO">
+        UPDATE USER
+           SET USER_AUTH = #{userAuth}
+             , BOARD_AUTH = #{boardAuth}
+             , QUE_AUTH = #{queAuth}
+             , QUETYPE_AUTH = #{queTypeAuth}
+        WHERE USER_ID = #{userId}
+    </update>
+
+</mapper>
